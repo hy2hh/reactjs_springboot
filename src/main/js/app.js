@@ -16,6 +16,7 @@ class App extends React.Component {
 		this.onCreate = this.onCreate.bind(this);
 		this.onNavigate = this.onNavigate.bind(this);
 		this.onDelete = this.onDelete.bind(this);
+		this.updatePageSize = this.updatePageSize.bind(this);
 	}
 
 	componentDidMount() {
@@ -81,7 +82,13 @@ class App extends React.Component {
 		});
 	}
 
-	render(){
+	updatePageSize(pageSize) {
+		if (pageSize !== this.state.pageSize) {
+			this.loadFromServer(pageSize);
+		} 
+	}
+
+	render() {
 		return (
 			<div>
 				<CreateDialog attributes={this.state.attributes} onCreate={this.onCreate} />
@@ -91,7 +98,7 @@ class App extends React.Component {
 					pageSize = {this.state.pageSize}
 					onNavigate={this.onNavigate}
 					onDelete={this.onDelete}
-					// updatePageSize={this.updatePageSize}
+					updatePageSize={this.updatePageSize}
 				/>
 			</div>
 		)

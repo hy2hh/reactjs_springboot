@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+const ReactDOM = require('react-dom');
 import Employee from './Employee';
 
 export default class EmployeeList extends Component {
@@ -9,6 +10,7 @@ export default class EmployeeList extends Component {
 		this.handleNavPrev = this.handleNavPrev.bind(this);
 		this.handleNavNext = this.handleNavNext.bind(this);
 		this.handleNavLast = this.handleNavLast.bind(this);
+		this.handleInput = this.handleInput.bind(this);
 	}
 
 	handleNavFirst(e){
@@ -30,6 +32,20 @@ export default class EmployeeList extends Component {
 	handleNavLast(e) {
 		e.preventDefault();
 		this.props.onNavigate(this.props.links.last.href);
+	}
+
+	handleInput(e) {
+		e.preventDefault();
+		var pageSize = ReactDOM.findDOMNode(this.refs.pageSize).value;
+		
+		if (/^[0-9]+$/.test(pageSize)) {
+			this.props.updatePageSize(pageSize);
+		} else {
+			console.log('length >> ',pageSize.length);
+			ReactDOM.findDOMNode(this.refs.pageSize).value = pageSize.substring(0, pageSize.length - 1);
+		}
+
+		this.props.updatePageSize();
 	}
  	
  	render() {
@@ -53,7 +69,7 @@ export default class EmployeeList extends Component {
 
 		return (
 			<div>
-				<input ref="pageSize" defaultValue={this.props.pageSize} ></input>
+				<input ref="pageSize" defaultValue={this.props.pageSize} onChange={this.handleInput}></input>
 				<table>
 					<tbody>
 						<tr>
