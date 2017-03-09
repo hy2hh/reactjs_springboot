@@ -14,11 +14,13 @@ class Employee extends Component {
   render() {
 		return (
 			<tr>
-				<td>{this.props.employee.firstName}</td>
-				<td>{this.props.employee.lastName}</td>
-				<td>{this.props.employee.description}</td>
+				<td>{this.props.employee.entity.firstName}</td>
+				<td>{this.props.employee.entity.lastName}</td>
 				<td>
 					<button onClick={this.handleDelete}>Delete</button>
+				</td>
+				<td>
+					<button onClick={this.handleUpdate}>Update</button>
 				</td>
 			</tr>
 		)

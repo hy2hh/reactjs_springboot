@@ -6,6 +6,7 @@ import EmployeeList from './components/EmployeeList';
 import CreateDialog from './components/CreateDialog';
 import client from './client';
 import follow from './follow';
+import when from 'when';
 
 const root = '/api';
 
@@ -24,26 +25,40 @@ class App extends React.Component {
 	}
 
 	loadFromServer(pageSize) {
+
 		follow(client, root, [
 			{
 				rel: 'employees', 
 				params: {size: pageSize}
 			}]
-		).then(employeeCollection => {
+		).then(rs => {
 			return client({
 				method: 'GET',
-				path: employeeCollection.entity._links.profile.href,
+				path: rs.entity._links.profile.href,
 				headers: {'Accept': 'application/schema+json'}
 			}).then(schema => {
 				this.schema = schema.entity;
-				return employeeCollection;
+				this.links = rs.entity._links
+				return rs;
 			});
-		}).done(employeeCollection => {
+		}).then(rs => {
+			return rs.entity._embedded.employees.map(employee =>
+				client({
+					method : 'GET',
+					path : employee._links.self.href
+				})
+			);
+		})
+		.then(employeePromises => {
+			return when.all(employeePromises);
+		}).done(employees => {
+			console.log('load server');
+			console.log(employees);
 			this.setState({
-				employees: employeeCollection.entity._embedded.employees,
+				employees: employees,
 				attributes: Object.keys(this.schema.properties),
 				pageSize: pageSize,
-				links: employeeCollection.entity._links
+				links: this.links
 			});
 		});
 	}
@@ -60,24 +75,58 @@ class App extends React.Component {
 			return follow(client, root, [
 				{rel: 'employees', params: {'size': this.state.pageSize}}]);
 		}).done(response => {
-			console.log(response);
 			this.onNavigate(response.entity._links.last.href);
 		});
 	}
 	
 	onDelete(employee) {
-		client({method: 'DELETE', path: employee._links.self.href}).done(response => {
+		client({method: 'DELETE', path: employee.entity._links.self.href}).done(response => {
 			this.loadFromServer(this.state.pageSize);
 		});
 	}
 
+	onUpdate(employee, updateEmployee) {
+		client({
+			method: 'GET',
+			path : employee.entity._links.self.href,
+			entity: updateEmployee,
+			header : {
+				'Content-Type' : 'application/json',
+				'If-Match' : employee.headers.Etag
+			}
+		}).done(res => {
+			this.loadFromServer(this.state.pageSize);
+		}, res => {
+			if (res.status.code === 412) {
+				alert('denied: unable to update' + 
+					employee.entity._links.self.href + '. Your copy is stale')
+			}
+		})
+	}
+
 	onNavigate(navUri) {
-		client({method: 'GET', path: navUri}).done(employeeCollection => {
+		client({
+			method: 'GET',
+			path: navUri
+		}).then(employeeCollection => {
+			this.links = employeeCollection.entity._links;
+
+			return employeeCollection.entity._embedded.employees.map(employee =>
+				client({
+					method : 'GET',
+					path: employee._links.self.href
+				})
+			);
+		}).then(employeePromises => {
+			return when.all(employeePromises);
+		}).done(employees => {
+			console.log('onNvigate')
+			console.log(employees);
 			this.setState({
-				employees: employeeCollection.entity._embedded.employees,
-				attributes: this.state.attributes,
-				pageSize: this.state.pageSize,
-				links: employeeCollection.entity._links
+				employees: employees,
+				attributes : Object.keys(this.schema.properties),
+				pageSize : this.state.pageSize,
+				links : this.links
 			});
 		});
 	}

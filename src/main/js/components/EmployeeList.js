@@ -25,7 +25,6 @@ export default class EmployeeList extends Component {
 
 	handleNavNext(e) {
 		e.preventDefault();
-		console.log(this.props.links);
 		this.props.onNavigate(this.props.links.next.href);
 	}
 
@@ -41,7 +40,6 @@ export default class EmployeeList extends Component {
 		if (/^[0-9]+$/.test(pageSize)) {
 			this.props.updatePageSize(pageSize);
 		} else {
-			console.log('length >> ',pageSize.length);
 			ReactDOM.findDOMNode(this.refs.pageSize).value = pageSize.substring(0, pageSize.length - 1);
 		}
 
@@ -49,8 +47,9 @@ export default class EmployeeList extends Component {
 	}
  	
  	render() {
+ 		console.log(this.props.employees)
   		var employees = this.props.employees.map(employee => 
-			<Employee key={employee._links.self.href} employee={employee} onDelete={this.props.onDelete}/>
+			<Employee key={employee.entity._links.self.href} employee={employee} onDelete={this.props.onDelete}/>
 		);
 		
   		var navLinks = [];
@@ -75,7 +74,6 @@ export default class EmployeeList extends Component {
 						<tr>
 							<th>First Name</th>
 							<th>Last Name</th>
-							<th>Description</th>
 						</tr>
 						{employees}
 					</tbody>
