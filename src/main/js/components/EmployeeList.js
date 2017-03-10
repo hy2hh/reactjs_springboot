@@ -47,9 +47,14 @@ export default class EmployeeList extends Component {
 	}
  	
  	render() {
- 		console.log(this.props.employees)
   		var employees = this.props.employees.map(employee => 
-			<Employee key={employee.entity._links.self.href} employee={employee} onDelete={this.props.onDelete}/>
+			<Employee 
+				key={employee.entity._links.self.href} 
+				employee={employee} 
+				onDelete={this.props.onDelete} 
+				onUpdate={this.props.onUpdate}
+				attributes = {this.props.attributes}
+			/>
 		);
 		
   		var navLinks = [];

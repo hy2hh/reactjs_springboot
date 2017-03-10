@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import UpdateDialog from './UpdateDialog';
 
 class Employee extends Component {
 
@@ -17,10 +18,14 @@ class Employee extends Component {
 				<td>{this.props.employee.entity.firstName}</td>
 				<td>{this.props.employee.entity.lastName}</td>
 				<td>
-					<button onClick={this.handleDelete}>Delete</button>
+					<UpdateDialog 
+						employee = {this.props.employee} 
+						attributes = {this.props.attributes}
+						onUpdate = {this.props.onUpdate} 
+					/>
 				</td>
 				<td>
-					<button onClick={this.handleUpdate}>Update</button>
+					<button onClick={this.handleDelete}>Delete</button>
 				</td>
 			</tr>
 		)

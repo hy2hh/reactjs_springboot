@@ -17,6 +17,7 @@ class App extends React.Component {
 		this.onCreate = this.onCreate.bind(this);
 		this.onNavigate = this.onNavigate.bind(this);
 		this.onDelete = this.onDelete.bind(this);
+		this.onUpdate = this.onUpdate.bind(this);
 		this.updatePageSize = this.updatePageSize.bind(this);
 	}
 
@@ -86,11 +87,12 @@ class App extends React.Component {
 	}
 
 	onUpdate(employee, updateEmployee) {
+		console.log(employee.entity._links.self.href);
 		client({
-			method: 'GET',
+			method: 'PUT',
 			path : employee.entity._links.self.href,
 			entity: updateEmployee,
-			header : {
+			headers : {
 				'Content-Type' : 'application/json',
 				'If-Match' : employee.headers.Etag
 			}
@@ -143,10 +145,12 @@ class App extends React.Component {
 				<CreateDialog attributes={this.state.attributes} onCreate={this.onCreate} />
 				<EmployeeList 
 					employees={this.state.employees} 
+					attributes = {this.state.attributes}
 					links = {this.state.links}
 					pageSize = {this.state.pageSize}
 					onNavigate={this.onNavigate}
 					onDelete={this.onDelete}
+					onUpdate={this.onUpdate}
 					updatePageSize={this.updatePageSize}
 				/>
 			</div>
